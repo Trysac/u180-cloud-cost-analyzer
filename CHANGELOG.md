@@ -9,4 +9,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Add FOCUS 1.0 cloud cost analyzer with Decimal arithmetic, period comparisons, tag coverage, and CLI
 - Initial project structure from the factory utility template.

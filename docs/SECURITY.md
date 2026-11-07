@@ -1,19 +1,8 @@
-# Security notes
+# Security
 
-## Threat model
+## Threat Model
 
-`trysac-cloud-cost-analyzer` is a pure library without I/O. The main risks are:
-
-- **Supply chain**: a compromised dependency or CI action. Mitigation: no runtime dependencies,
-  Dependabot weekly updates, actions pinned to major versions, minimal workflow permissions.
-- **Leaked secrets**: tokens committed by mistake. Mitigation: `gitleaks` runs in the local gates
-  and in CI; `.env` files are git-ignored.
-- **Untrusted input**: callers may pass hostile strings. Mitigation: validate input and fail with
-  explicit exceptions; never `eval`, `exec` or deserialize untrusted data.
-
-## Publishing
-
-Releases are published to PyPI with trusted publishing (OIDC) when available, never with a
-long-lived token stored in the repository.
-
-To report a vulnerability, see [SECURITY.md](../SECURITY.md).
+- **Denial of Service**: The library enforces hard limits on input to prevent resource exhaustion. Files larger than 50,000,000 bytes or containing more than 1,000,000 rows raise `CostError('input_too_large')`.
+- **Data Integrity**: All monetary values are processed using `decimal.Decimal`. Invalid numeric strings or non-finite values (NaN, Inf) trigger `CostError('invalid_value')`.
+- **Time Confusion**: The parser requires ISO 8601 datetimes with explicit offsets. Naive datetimes trigger `CostError('invalid_value')` to prevent timezone ambiguity.
+- **Injection**: The utility does not use `eval` or `exec`. Tags are parsed via `json.loads` as a dictionary, and invalid JSON structures result in `CostError('invalid_value')`.

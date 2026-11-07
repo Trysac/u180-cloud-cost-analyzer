@@ -19,6 +19,9 @@ classifiers = [
 ]
 dependencies = []
 
+[project.scripts]
+cloud-cost-analyzer = "cloud_cost_analyzer.__main__:main"
+
 [project.urls]
 Homepage = "https://github.com/Trysac/u180-cloud-cost-analyzer"
 Source = "https://github.com/Trysac/u180-cloud-cost-analyzer"

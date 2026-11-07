@@ -1,20 +1,9 @@
 # Testing
 
-## Running
+## Overview
 
-```sh
-uv run pytest --cov=cloud_cost_analyzer   # tests with coverage report
-uv run python scripts/check.py      # every gate, as CI and the factory run it
-```
+The project uses a standard test layout mirroring the source modules. Tests are deterministic and avoid network I/O.
 
-## Policy
-
-- Branch coverage of `src/cloud_cost_analyzer` must stay at or above 80 %; the gate fails below it.
-- Tests exercise the public API (`import cloud_cost_analyzer`) and assert every observable effect:
-  return values, raised exceptions and their messages.
-- Each bug fix starts with a failing test that reproduces it.
-- Tests are deterministic: no network, no wall clock, no dependence on test order.
-
-## Layout
-
-`tests/test_<module>.py` mirrors each public module. Shared fixtures go in `tests/conftest.py`.
+- `tests/test_cloud_cost_analyzer.py`: Validates the primary parsing, aggregation, and arithmetic logic. 
+- **Coverage**: The test suite covers the public API, ensuring `load_focus_csv` handles valid and invalid headers, `summarize` and `compare` perform calculations correctly according to acceptance criteria, and `tag_coverage` accurately identifies untagged spend.
+- **Validation**: Includes tests for the `CostError` codes (`input_too_large`, `missing_column`, `invalid_value`, `currency_mismatch`, `invalid_option`).
