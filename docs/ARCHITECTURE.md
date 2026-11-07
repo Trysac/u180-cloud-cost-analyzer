@@ -1,29 +1,10 @@
 # Architecture
 
-## Purpose
+`cloud-cost-analyzer` acts as a library and CLI tool for local analysis of FinOps FOCUS 1.0 datasets.
 
-`trysac-cloud-cost-analyzer` is a small, dependency-free Python library: Analyze FOCUS 1.0 cloud cost CSV exports with Decimal arithmetic: grouped totals by day or month, period comparison and tag coverage
+## Components
 
-## Shape
-
-```text
-caller code --> cloud_cost_analyzer (public API in __init__.py)
-                    |
-                    +-- pure functions, no I/O, no global state
-```
-
-- **Public API**: the names listed in `__all__` of `src/cloud_cost_analyzer/__init__.py`. Anything else is
-  internal and may change without a major version.
-- **Errors**: invalid input raises built-in exceptions (`ValueError`, `TypeError`) with a clear
-  message; the library never prints or exits.
-- **Side effects**: none. If a feature needs I/O, isolate it in its own module behind a small
-  interface and record the choice in an ADR.
-
-## Quality contract
-
-`scripts/check.py` is the single definition of the gates; `fabrica.json` tells the factory and CI
-how to run it. See [TESTING.md](TESTING.md).
-
-## Decisions
-
-Architecture decisions are recorded in [decisions/](decisions/) as numbered ADRs.
+- **Parser**: Converts raw CSV strings to `CostRow` objects. Performs strict validation of FOCUS column requirements (`ChargePeriodStart`, `EffectiveCost`, `BillingCurrency`, `ServiceName`).
+- **Analyzer**: Contains pure functions (`summarize`, `compare`, `tag_coverage`) for data transformation using `decimal.Decimal`.
+- **Renderer**: Formats analytical results (`CostGroup`, `Delta`) into aligned text or CSV format, applying quantization (`ROUND_HALF_EVEN`) only at the final display stage.
+- **CLI**: A wrapper around the library, routing commands (`summary`, `compare`, `tags`) to specific API endpoints and handling OS errors/system exits.

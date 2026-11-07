@@ -1,48 +1,46 @@
 # cloud-cost-analyzer
 
-[![PyPI version](https://img.shields.io/pypi/v/trysac-cloud-cost-analyzer)](https://pypi.org/project/trysac-cloud-cost-analyzer/)
-[![License: MIT](https://img.shields.io/pypi/l/trysac-cloud-cost-analyzer)](LICENSE)
-[![CI](https://github.com/Trysac/u180-cloud-cost-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/Trysac/u180-cloud-cost-analyzer/actions/workflows/ci.yml)
+Analyze FinOps FOCUS 1.0 cloud cost CSV exports offline using exact Python `Decimal` arithmetic.
 
-Analyze FOCUS 1.0 cloud cost CSV exports with Decimal arithmetic: grouped totals by day or month, period comparison and tag coverage
+## Overview
 
-## Problem
+Cloud bills arrive as large CSV exports that finance and engineering teams open in spreadsheets, where floating-point sums drift, mixed currencies blend unnoticed, and untagged cloud spend stays invisible. The FinOps Foundation's **FOCUS 1.0** (FinOps Open Cost and Usage Specification) defines an open standard for cloud billing datasets across AWS, Azure, Google Cloud, and OCI.
 
-Describe in two or three sentences the concrete problem this utility solves, who hits it, and what
-they do today without it. Replace this paragraph when the first real feature lands.
+`cloud-cost-analyzer` provides a clean, dependency-free, standard-library-only Python engine and CLI to analyze FOCUS 1.0 datasets without loss of precision:
+- **Exact Decimal totals**: Never uses float arithmetic, avoiding floating-point rounding errors.
+- **Temporal grouping**: Aggregates costs by day or month across core dimensions (`ServiceName`, `SubAccountId`, `RegionId`, `ChargeCategory`, `ProviderName`, or arbitrary tags via `tag:<key>`).
+- **Period comparison**: Calculates exact changes and percentage deltas between periods.
+- **Tag coverage**: Quantifies tagged versus untagged expenditure and coverage ratio.
+- **CLI & Formatted output**: Tabular aligned text or CSV output for reports and automation.
 
-## Install
+## Installation
 
-```sh
-pip install trysac-cloud-cost-analyzer
-# or
-uv add trysac-cloud-cost-analyzer
+```bash
+pip install cloud-cost-analyzer
 ```
-
-Requires Python 3.10 or newer. No runtime dependencies.
 
 ## Usage
 
 ```python
-import cloud_cost_analyzer
+from cloud_cost_analyzer import load_focus_csv, summarize, render
 
-# normalize() trims surrounding whitespace and lower-cases the text.
-print(cloud_cost_analyzer.normalize("  Hello World "))  # -> "hello world"
-
-# Blank input is rejected explicitly instead of returning an empty string.
-try:
-    cloud_cost_analyzer.normalize("   ")
-except ValueError as exc:
-    print(f"rejected: {exc}")
+rows = load_focus_csv(open("focus.csv").read())
+groups = summarize(rows, by="ServiceName", granularity="month")
+print(render(groups, fmt="text"))
 ```
 
-## Documentation
+## Public API Summary
 
-- [Architecture](docs/ARCHITECTURE.md) and [decisions](docs/decisions/)
-- [Testing](docs/TESTING.md) and [security](docs/SECURITY.md)
-- [Project record](docs/PROJECT.md) and [stack](docs/STACK.md)
-- [Changelog](CHANGELOG.md) and [contributing guide](CONTRIBUTING.md)
+- `load_focus_csv`: Parses FOCUS 1.0 CSVs. Errors: `input_too_large` (>50MB or >1M rows), `missing_column`, `invalid_value` (non-finite costs, bad datetimes, naive datetimes). Optional `cost_column` override.
+- `summarize`: Aggregates cost by period and key. Errors: `invalid_option` (granularity), `currency_mismatch`.
+- `compare`: Deltas between periods. Errors: `currency_mismatch`.
+- `tag_coverage`: Calculates allocation ratio.
+- `render`: Exports to 'text' or 'csv'.
 
-## License
+## Why not existing SaaS tools?
 
-[MIT](LICENSE) (c) 2026 Miguel Gomez
+FinOps tools are typically hosted SaaS products; this provides a standard library, offline-first tool for FOCUS datasets, ensuring data privacy and exact arithmetic.
+
+## Security
+
+See [docs/SECURITY.md](docs/SECURITY.md).
