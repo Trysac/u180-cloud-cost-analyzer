@@ -15,8 +15,10 @@ Cloud bills arrive as large CSV exports that finance and engineering teams open 
 
 ## Installation
 
+Not published to PyPI yet. Install it from GitHub:
+
 ```bash
-pip install cloud-cost-analyzer
+pip install "git+https://github.com/Trysac/u180-cloud-cost-analyzer"
 ```
 
 ## Usage
